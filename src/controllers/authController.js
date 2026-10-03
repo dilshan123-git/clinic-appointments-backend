@@ -16,9 +16,9 @@ const {
 // ==========================================
 // Generate JWT Token
 // ==========================================
-const generateToken = (userId) => {
+const generateToken = (user) => {
   return jwt.sign(
-    { userId },
+    { user },
     process.env.JWT_SECRET,
     {
       expiresIn: "7d",
@@ -120,21 +120,21 @@ exports.login = async (req, res) => {
     }
 
     // Generate JWT
-    const token = generateToken(user._id);
-
+    
     // Response user data
     const userData = {
       id: user._id,
       name: user.name,
       email: user.email,
     };
+    const token = generateToken(userData);
 
     return successResponse(
       res,
       "Login successful",
       {
         token,
-        user: userData,
+        user: null,
       }
     );
 
