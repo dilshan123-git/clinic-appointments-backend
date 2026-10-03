@@ -33,6 +33,7 @@ jobs:
       - name: 🔍 Verify project
         run: npm --version
 
+
   # ==========================================
   # 2️⃣ TEST
   # ==========================================
@@ -57,6 +58,7 @@ jobs:
       - name: 🧪 Run tests
         run: npm test --if-present
 
+
   # ==========================================
   # 3️⃣ DEPLOY TO RENDER
   # ==========================================
@@ -65,10 +67,27 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
 
+    # 🔐 MANUAL APPROVAL REQUIRED
+    environment:
+      name: production
+      url: https://clinic-appointments-backend.onrender.com
+
     steps:
+
+      # This step runs ONLY after production approval
+      - name: 🔐 Deployment Approval
+        run: |
+          echo "✅ Production deployment approved."
+          echo "🚀 Starting Render deployment..."
+
       - name: 🚀 Trigger Render Deployment
         run: |
           curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
 
-      - name: ✅ Deployment triggered
-        run: echo "ChannelMe backend deployment triggered successfully!"
+      - name: ✅ Deployment Complete
+        run: |
+          echo "======================================"
+          echo "🎉 ChannelMe Backend Deployment Started"
+          echo "☁️ Render Service:"
+          echo "https://clinic-appointments-backend.onrender.com"
+          echo "======================================"
