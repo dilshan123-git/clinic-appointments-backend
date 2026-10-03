@@ -1,34 +1,69 @@
 const Specialization = require("../models/Specialization");
 
+const {
+  successResponse,
+  createdResponse,
+  errorResponse,
+  serverErrorResponse,
+} = require("../template/response");
+
+
+// ==========================================
+// Create Specialization
+// ==========================================
 exports.createSpecialization = async (req, res) => {
   try {
     const specialization =
       await Specialization.create(req.body);
 
-    res.status(201).json({
-      message: "Specialization created",
-      data: specialization,
-    });
+    return createdResponse(
+      res,
+      "Specialization created successfully",
+      specialization
+    );
+
   } catch (error) {
-    res.status(400).json({
-      message: "Failed to create specialization",
-      error: error.message,
-    });
+
+    console.error(
+      "Create Specialization Error:",
+      error
+    );
+
+    return errorResponse(
+      res,
+      "Failed to create specialization",
+      error.message,
+      400
+    );
   }
 };
 
+
+// ==========================================
+// Get All Specializations
+// ==========================================
 exports.getSpecializations = async (req, res) => {
   try {
     const specializations =
       await Specialization.find();
 
-    res.json({
-      data: specializations,
-    });
+    return successResponse(
+      res,
+      "Specializations retrieved successfully",
+      specializations
+    );
+
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to fetch specializations",
-      error: error.message,
-    });
+
+    console.error(
+      "Get Specializations Error:",
+      error
+    );
+
+    return serverErrorResponse(
+      res,
+      "Failed to fetch specializations",
+      error.message
+    );
   }
 };

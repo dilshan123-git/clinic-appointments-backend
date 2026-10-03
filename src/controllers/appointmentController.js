@@ -1,5 +1,17 @@
 const Appointment = require("../models/Appointment");
 
+const {
+  successResponse,
+  createdResponse,
+  errorResponse,
+  notFoundResponse,
+  serverErrorResponse,
+} = require("../template/response");
+
+
+// ==========================================
+// Create Appointment
+// ==========================================
 exports.createAppointment = async (req, res) => {
   try {
     const appointment = await Appointment.create({
@@ -7,23 +19,38 @@ exports.createAppointment = async (req, res) => {
       patient: req.user.id,
     });
 
+    // Populate patient and doctor information
     const populatedAppointment =
       await Appointment.findById(appointment._id)
         .populate("patient", "name email")
         .populate("doctor");
 
-    res.status(201).json({
-      message: "Appointment created",
-      data: populatedAppointment,
-    });
+    return createdResponse(
+      res,
+      "Appointment created successfully",
+      populatedAppointment
+    );
+
   } catch (error) {
-    res.status(400).json({
-      message: "Failed to create appointment",
-      error: error.message,
-    });
+
+    console.error(
+      "Create Appointment Error:",
+      error
+    );
+
+    return errorResponse(
+      res,
+      "Failed to create appointment",
+      error.message,
+      400
+    );
   }
 };
 
+
+// ==========================================
+// Get My Appointments
+// ==========================================
 exports.getMyAppointments = async (req, res) => {
   try {
     const appointments =
@@ -31,19 +58,35 @@ exports.getMyAppointments = async (req, res) => {
         patient: req.user.id,
       })
         .populate("doctor")
-        .sort({ appointmentDate: 1 });
+        .sort({
+          appointmentDate: 1,
+        });
 
-    res.json({
-      data: appointments,
-    });
+    return successResponse(
+      res,
+      "Appointments retrieved successfully",
+      appointments
+    );
+
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to fetch appointments",
-      error: error.message,
-    });
+
+    console.error(
+      "Get My Appointments Error:",
+      error
+    );
+
+    return serverErrorResponse(
+      res,
+      "Failed to fetch appointments",
+      error.message
+    );
   }
 };
 
+
+// ==========================================
+// Update Appointment Status
+// ==========================================
 exports.updateAppointmentStatus = async (
   req,
   res
@@ -55,23 +98,38 @@ exports.updateAppointmentStatus = async (
       await Appointment.findByIdAndUpdate(
         req.params.id,
         { status },
-        { new: true, runValidators: true }
+        {
+          new: true,
+          runValidators: true,
+        }
       );
 
+    // Appointment not found
     if (!appointment) {
-      return res.status(404).json({
-        message: "Appointment not found",
-      });
+      return notFoundResponse(
+        res,
+        "Appointment not found"
+      );
     }
 
-    res.json({
-      message: "Appointment status updated",
-      data: appointment,
-    });
+    return successResponse(
+      res,
+      "Appointment status updated successfully",
+      appointment
+    );
+
   } catch (error) {
-    res.status(400).json({
-      message: "Failed to update appointment",
-      error: error.message,
-    });
+
+    console.error(
+      "Update Appointment Status Error:",
+      error
+    );
+
+    return errorResponse(
+      res,
+      "Failed to update appointment",
+      error.message,
+      400
+    );
   }
 };

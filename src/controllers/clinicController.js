@@ -1,32 +1,67 @@
 const Clinic = require("../models/Clinic");
 
+const {
+  successResponse,
+  createdResponse,
+  errorResponse,
+  serverErrorResponse,
+} = require("../template/response");
+
+
+// ==========================================
+// Create Clinic
+// ==========================================
 exports.createClinic = async (req, res) => {
   try {
     const clinic = await Clinic.create(req.body);
 
-    res.status(201).json({
-      message: "Clinic created",
-      data: clinic,
-    });
+    return createdResponse(
+      res,
+      "Clinic created successfully",
+      clinic
+    );
+
   } catch (error) {
-    res.status(400).json({
-      message: "Failed to create clinic",
-      error: error.message,
-    });
+
+    console.error(
+      "Create Clinic Error:",
+      error
+    );
+
+    return errorResponse(
+      res,
+      "Failed to create clinic",
+      error.message,
+      400
+    );
   }
 };
 
+
+// ==========================================
+// Get All Clinics
+// ==========================================
 exports.getClinics = async (req, res) => {
   try {
     const clinics = await Clinic.find();
 
-    res.json({
-      data: clinics,
-    });
+    return successResponse(
+      res,
+      "Clinics retrieved successfully",
+      clinics
+    );
+
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to fetch clinics",
-      error: error.message,
-    });
+
+    console.error(
+      "Get Clinics Error:",
+      error
+    );
+
+    return serverErrorResponse(
+      res,
+      "Failed to fetch clinics",
+      error.message
+    );
   }
 };

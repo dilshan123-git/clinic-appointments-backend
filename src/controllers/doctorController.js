@@ -1,63 +1,117 @@
 const Doctor = require("../models/Doctor");
 
+const {
+  successResponse,
+  createdResponse,
+  errorResponse,
+  notFoundResponse,
+  serverErrorResponse,
+} = require("../template/response");
+
+
+// ==========================================
+// Create Doctor
+// ==========================================
 exports.createDoctor = async (req, res) => {
   try {
     const doctor = await Doctor.create(req.body);
 
-    const populatedDoctor = await Doctor.findById(
-      doctor._id
-    )
-      .populate("specialization")
-      .populate("clinic");
+    // Populate specialization and clinic
+    const populatedDoctor =
+      await Doctor.findById(doctor._id)
+        .populate("specialization")
+        .populate("clinic");
 
-    res.status(201).json({
-      message: "Doctor created",
-      data: populatedDoctor,
-    });
+    return createdResponse(
+      res,
+      "Doctor created successfully",
+      populatedDoctor
+    );
+
   } catch (error) {
-    res.status(400).json({
-      message: "Failed to create doctor",
-      error: error.message,
-    });
+
+    console.error(
+      "Create Doctor Error:",
+      error
+    );
+
+    return errorResponse(
+      res,
+      "Failed to create doctor",
+      error.message,
+      400
+    );
   }
 };
 
+
+// ==========================================
+// Get All Doctors
+// ==========================================
 exports.getDoctors = async (req, res) => {
   try {
-    const doctors = await Doctor.find()
-      .populate("specialization")
-      .populate("clinic");
+    const doctors =
+      await Doctor.find()
+        .populate("specialization")
+        .populate("clinic");
 
-    res.json({
-      data: doctors,
-    });
+    return successResponse(
+      res,
+      "Doctors retrieved successfully",
+      doctors
+    );
+
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to fetch doctors",
-      error: error.message,
-    });
+
+    console.error(
+      "Get Doctors Error:",
+      error
+    );
+
+    return serverErrorResponse(
+      res,
+      "Failed to fetch doctors",
+      error.message
+    );
   }
 };
 
+
+// ==========================================
+// Get Doctor By ID
+// ==========================================
 exports.getDoctorById = async (req, res) => {
   try {
-    const doctor = await Doctor.findById(req.params.id)
-      .populate("specialization")
-      .populate("clinic");
+    const doctor =
+      await Doctor.findById(req.params.id)
+        .populate("specialization")
+        .populate("clinic");
 
+    // Doctor not found
     if (!doctor) {
-      return res.status(404).json({
-        message: "Doctor not found",
-      });
+      return notFoundResponse(
+        res,
+        "Doctor not found"
+      );
     }
 
-    res.json({
-      data: doctor,
-    });
+    return successResponse(
+      res,
+      "Doctor retrieved successfully",
+      doctor
+    );
+
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to fetch doctor",
-      error: error.message,
-    });
+
+    console.error(
+      "Get Doctor By ID Error:",
+      error
+    );
+
+    return serverErrorResponse(
+      res,
+      "Failed to fetch doctor",
+      error.message
+    );
   }
 };

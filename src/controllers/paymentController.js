@@ -1,47 +1,87 @@
 const Payment = require("../models/Payment");
 
+const {
+  successResponse,
+  createdResponse,
+  errorResponse,
+  notFoundResponse,
+  serverErrorResponse,
+} = require("../template/response");
+
+
+// ==========================================
+// Create Payment
+// ==========================================
 exports.createPayment = async (req, res) => {
   try {
     const payment = await Payment.create(req.body);
 
+    // Populate appointment information
     const populatedPayment =
       await Payment.findById(payment._id)
         .populate("appointment");
 
-    res.status(201).json({
-      message: "Payment created",
-      data: populatedPayment,
-    });
+    return createdResponse(
+      res,
+      "Payment created successfully",
+      populatedPayment
+    );
+
   } catch (error) {
-    res.status(400).json({
-      message: "Payment creation failed",
-      error: error.message,
-    });
+
+    console.error(
+      "Create Payment Error:",
+      error
+    );
+
+    return errorResponse(
+      res,
+      "Payment creation failed",
+      error.message,
+      400
+    );
   }
 };
 
+
+// ==========================================
+// Get Payment By Appointment
+// ==========================================
 exports.getPaymentByAppointment = async (
   req,
   res
 ) => {
   try {
-    const payment = await Payment.findOne({
-      appointment: req.params.appointmentId,
-    }).populate("appointment");
+    const payment =
+      await Payment.findOne({
+        appointment: req.params.appointmentId,
+      }).populate("appointment");
 
+    // Payment not found
     if (!payment) {
-      return res.status(404).json({
-        message: "Payment not found",
-      });
+      return notFoundResponse(
+        res,
+        "Payment not found"
+      );
     }
 
-    res.json({
-      data: payment,
-    });
+    return successResponse(
+      res,
+      "Payment retrieved successfully",
+      payment
+    );
+
   } catch (error) {
-    res.status(500).json({
-      message: "Failed to fetch payment",
-      error: error.message,
-    });
+
+    console.error(
+      "Get Payment By Appointment Error:",
+      error
+    );
+
+    return serverErrorResponse(
+      res,
+      "Failed to fetch payment",
+      error.message
+    );
   }
 };
