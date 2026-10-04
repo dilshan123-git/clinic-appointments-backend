@@ -6,13 +6,23 @@ const connectDB = require("./config/database");
 
 dotenv.config();
 
-connectDB();
-
 const app = express();
+
+// Database
+connectDB();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Health Check
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "UP",
+    message: "Healthcare Appointment API is healthy",
+  });
+});
 
 // Routes
 app.use("/api/auth", require("./routes/authRoutes"));
@@ -42,18 +52,34 @@ app.use(
   require("./routes/paymentRoutes")
 );
 
-// Health check
+// Root
 app.get("/", (req, res) => {
-  res.json({
+  res.status(200).json({
     message: "Healthcare Appointment API is running",
+  });
+});
+
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API endpoint not found",
+  });
+});
+
+// Error Handler
+app.use((err, req, res, next) => {
+  console.error("Server Error:", err);
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
   });
 });
 
 // Server
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(
-    `Server running on http://localhost:${PORT}`
-  );
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
 });
