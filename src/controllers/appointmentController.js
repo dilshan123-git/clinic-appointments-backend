@@ -15,11 +15,13 @@ const {
 exports.createAppointment = async (req, res) => {
   try {
     const appointment = await Appointment.create({
-      ...req.body,
-      patient: req.user.id,
+      patient: req.body.patient,
+      doctor: req.body.doctor,
+      appointmentDate: req.body.appointmentDate,
+      appointmentTime: req.body.appointmentTime,
+      reason: req.body.reason,
     });
 
-    // Populate patient and doctor information
     const populatedAppointment =
       await Appointment.findById(appointment._id)
         .populate("patient", "name email")
@@ -32,7 +34,6 @@ exports.createAppointment = async (req, res) => {
     );
 
   } catch (error) {
-
     console.error(
       "Create Appointment Error:",
       error
@@ -46,7 +47,6 @@ exports.createAppointment = async (req, res) => {
     );
   }
 };
-
 
 // ==========================================
 // Get My Appointments
