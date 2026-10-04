@@ -8,10 +8,6 @@ const {
   serverErrorResponse,
 } = require("../template/response");
 
-
-// ==========================================
-// Create Appointment
-// ==========================================
 exports.createAppointment = async (req, res) => {
   try {
     const appointment = await Appointment.create({
@@ -48,9 +44,6 @@ exports.createAppointment = async (req, res) => {
   }
 };
 
-// ==========================================
-// Get My Appointments
-// ==========================================
 exports.getMyAppointments = async (req, res) => {
   try {
     const appointments =
@@ -84,9 +77,6 @@ exports.getMyAppointments = async (req, res) => {
 };
 
 
-// ==========================================
-// Update Appointment Status
-// ==========================================
 exports.updateAppointmentStatus = async (
   req,
   res
@@ -130,6 +120,49 @@ exports.updateAppointmentStatus = async (
       "Failed to update appointment",
       error.message,
       400
+    );
+  }
+};
+
+
+exports.getMyUpcomingAppointments = async (req, res) => {
+  try {
+
+    const today = new Date();
+    const todayDate = `${today.getFullYear()}-${String(
+      today.getMonth() + 1
+    ).padStart(2, "0")}-${String(
+      today.getDate()
+    ).padStart(2, "0")}`;
+
+
+    const appointments = await Appointment.find({
+      patient: req.user.userId,
+      appointmentDate: {
+        $gte: todayDate,
+      },
+    })
+      .populate("doctor")
+      .sort({
+        appointmentDate: 1,
+        appointmentTime: 1,
+      });
+
+    return successResponse(
+      res,
+      "Upcoming appointments retrieved successfully",
+      appointments
+    );
+  } catch (error) {
+    console.error(
+      "Get My Upcoming Appointments Error:",
+      error
+    );
+
+    return serverErrorResponse(
+      res,
+      "Failed to fetch upcoming appointments",
+      error.message
     );
   }
 };

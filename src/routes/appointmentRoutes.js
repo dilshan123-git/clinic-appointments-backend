@@ -6,6 +6,7 @@ const {
   createAppointment,
   getMyAppointments,
   updateAppointmentStatus,
+  getMyUpcomingAppointments,
 } = require("../controllers/appointmentController");
 
 const router = express.Router();
@@ -26,6 +27,12 @@ router.patch(
   "/:id/status",
   authMiddleware,
   updateAppointmentStatus
+);
+
+router.get(
+  "/upcoming",
+  authMiddleware,
+  getMyUpcomingAppointments
 );
 
 module.exports = router;
