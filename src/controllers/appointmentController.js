@@ -137,7 +137,7 @@ exports.getMyUpcomingAppointments = async (req, res) => {
 
 
     const appointments = await Appointment.find({
-      patient: req.user.userId,
+      patient: req.user.user.id,
       appointmentDate: {
         $gte: todayDate,
       },
